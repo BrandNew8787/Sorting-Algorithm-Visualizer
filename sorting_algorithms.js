@@ -191,7 +191,166 @@ function heapify(arr, n, i) {
     }
 }
 
+
+/*
+A sorting algorithm that works by dividing elements of a dataset into a set of "buckets" 
+based on their value range, then sorting each bucket individually and finally combining 
+them to produce a fully sorted list.
+
+Best case: O(n) - when elements are uniformly distributed across buckets.
+Average case: O(n + k)
+Worst case: O(n²) - when all elements fall into one bucket
+*/
+function bucket_sort(arr) {
+    if (arr.length <= 1) return arr;
+
+    // Step 1: Find the minimum and maximum values
+    let min = Math.min(...arr);
+    let max = Math.max(...arr);
+
+    // Step 2: Normalize and distribute into buckets
+    let bucketCount = Math.ceil(Math.sqrt(arr.length)); // Number of buckets
+    let buckets = Array.from({ length: bucketCount }, () => []);
+
+    for (let i = 0; i < arr.length; i++) {
+        let normalized = (arr[i] - min) / (max - min); // Normalize to [0, 1]
+        let bucketIndex = Math.floor(normalized * (bucketCount - 1)); // Determine bucket
+        buckets[bucketIndex].push(arr[i]);
+    }
+
+    // Step 3: Sort each bucket and concatenate
+    let sortedArray = [];
+    for (let bucket of buckets) {
+        sortedArray.push(...insertion_sort(bucket)); // Use insertion sort for each bucket
+    }
+
+    return sortedArray;
+}
+
+
+/*
+A sorting algorithm that efficiently sorts data by counting the occurrences of each distinct element 
+within a given range, storing these counts in a separate array, and then using those counts to determine 
+the final sorted position of each element.
+
+The time complexity of Counting Sort is O(n + k), where "n" is the number of elements in the input array 
+and "k" represents the range of values within the input data; essentially, it takes O(n) time to count 
+elements and O(k) time to iterate through the range of possible values.
+*/
+function counting_sort(arr){
+    if (arr.length <= 1){
+        return arr;
+    }
+    
+    let max = Math.max(...arr) + 1;
+
+    let c = Array(max + 1).fill(0);
+    for(let j = 0; j < arr.length; j++){
+        c[arr[j]] += 1;
+    }
+    for(let i = 1; i < max; i++){
+        c[i] = c[i] + c[i - 1];
+    }
+    let b = Array(arr.legnth).fill(0);
+    for (let j = a.length - 1; j >= 0; j--){
+        b[c[arr[j]] - 1] = arr[j];
+        c[a[j]] -= 1;
+    }
+    return b;
+}
+
+
+/*
+A non-comparison based sorting algorithm that sorts data by repeatedly grouping elements based on their individual 
+digits (or "radix"), processing them digit by digit, starting from the least significant digit to the most significant 
+digit, effectively organizing elements into buckets based on each digit's value at a specific place value.
+
+The time complexity of Radix Sort is O(n * d), where "n" is the number of elements in the array and "d" is the number 
+of digits in the largest number (or the maximum number of significant digits) in the input data.
+*/
+function radix_sort(arr){
+    let max = arr[0];
+    for (let i = 0; i < arr.length; i++){
+        if (arr[i].toString().length > max.toString().length){
+            max = arr[i];
+        }
+    }
+
+    for (let pos = 1; max / pos > 0; pos*=10){
+        radix_count_sort(arr, pos);
+    }
+    return arr;
+}
+
+function radix_count_sort(arr, pos){
+    let output = Array(arr.length).fill(0);
+    let c = Array(10).fill(0);
+
+    for(let j = 0; j < arr.length; j++){
+        let digit = Math.floor(arr[j] / pos) % 10;
+        c[digit] += 1;
+    }
+    for(let i = 1; i < 10; i++){
+        c[i] += c[i - 1];
+    }
+    for (let j = arr.length - 1; j >= 0; j--){
+        let digit = Math.floor(arr[j] / pos) % 10;
+        output[c[digit] - 1] = arr[j];
+        c[digit] -= 1;
+    }
+    for(let i = 0; i < arr.length; i++){
+        arr[i] = output[i];
+    }
+}
+
+
+/*
+A highly efficient sorting algorithm that uses a "divide and conquer" strategy to sort data by selecting a "pivot" element, 
+partitioning the array into elements smaller and larger than the pivot, and then recursively sorting each partition until the entire array is ordered.
+
+Best and average cases:
+Quicksort's best and average-case time complexity is \(O(n\log n)\) because it uses a divide-and-conquer approach.  
+
+Worst case:
+Quicksort's worst-case time complexity is \(O(n^{2})\) when the pivot choice results in unbalanced partitions. 
+This can happen when the array is already sorted or when the pivot is consistently the smallest or largest element. 
+*/
+function quick_sort(arr, left, right){
+    if(right - left <= 0){
+        return;
+    }
+    else{
+        let partitionPoint = partition(arr, left, right);
+        quick_sort(arr, left, partitionPoint-1);
+        quick_sort(arr, partitionPoint + 1, right);
+    }
+    return arr;
+}
+
+
+function partition(arr, left, right) {
+    let pivot = arr[right]; // Choose pivot as the rightmost element
+    let i = left - 1; // Pointer for elements smaller than pivot
+
+    for (let j = left; j < right; j++) {
+        if (arr[j] <= pivot) {
+            i++;
+            swap(arr, i, j); // Swap smaller element to the left
+        }
+    }
+    swap(arr, i + 1, right); // Place pivot in its correct position
+    return i + 1; // Return pivot index
+}
+
+function swap(arr, i, j) {
+    let temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
+}
+
+
 // Example usage:
 let a = [5, 2, 6, 9, 8, 1, 3, 7, 4];
 console.log("Original array:", a);
-console.log("Heap Sort:", heap_sort([...a]));
+console.log("Sorted array:", quick_sort(a, 0, a.length - 1));
+let b = [34, 3432, 543, 21, 7, 43, 378, 741]
