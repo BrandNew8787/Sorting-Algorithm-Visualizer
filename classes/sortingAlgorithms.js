@@ -3,7 +3,7 @@ A simple sorting algorithm that repeatedly iterates through a list,
 comparing adjacent elements and swapping them if they are in the wrong order.
 Can be inefficient for large datasets due to its time complexity of O(n^2).
 */
-function bubble_sort(arr) {
+export function bubble_sort(arr) {
     for (let i = 0; i < arr.length; i++) {
         for (let j = i + 1; j < arr.length; j++) {
             if (arr[i] > arr[j]) {
