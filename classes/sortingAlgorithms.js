@@ -180,24 +180,26 @@ the end of the array, effectively building a sorted sequence.
 
 Results in a time complexity of O(n log n) for all cases.
 */
-function heap_sort(arr) {
+export function heap_sort(arr) {
+    let moves = [];
     const n = arr.length;
 
     // Step 1: Build the Max Heap
     for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
-        heapify(arr, n, i);
+        heapify(arr, n, i, moves);
     }
 
     // Step 2: Extract elements from the heap one by one
     for (let i = n - 1; i > 0; i--) {
         // Move the current root (largest) to the end
+        moves.push({indices: [0, i], type:"swap"});
         [arr[0], arr[i]] = [arr[i], arr[0]];
 
         // Heapify the reduced heap
-        heapify(arr, i, 0);
+        heapify(arr, i, 0, moves);
     }
 
-    return arr;
+    return moves;
 }
 
 /*
@@ -211,27 +213,30 @@ Parameters:
 
 Time Complexity: O(log n), as the height of the heap determines the number of recursive calls.
 */
-function heapify(arr, n, i) {
+function heapify(arr, n, i, moves) {
     let largest = i;         // Assume the root is the largest
     const left = 2 * i + 1;  // Left child index
     const right = 2 * i + 2; // Right child index
 
     // Check if left child exists and is greater than root
+    moves.push({indices: [largest, left], type:"comp"});
     if (left < n && arr[left] > arr[largest]) {
         largest = left;
     }
 
     // Check if right child exists and is greater than largest so far
+    moves.push({indices: [largest, right], type:"comp"});
     if (right < n && arr[right] > arr[largest]) {
         largest = right;
     }
 
     // If the largest is not the root, swap and continue heapifying
     if (largest !== i) {
+        moves.push({indices: [i, largest], type:"swap"});
         [arr[i], arr[largest]] = [arr[largest], arr[i]];
 
         // Recursively heapify the affected subtree
-        heapify(arr, n, largest);
+        heapify(arr, n, largest, moves);
     }
 }
 
@@ -396,7 +401,7 @@ function swap(arr, i, j) {
 // Example usage:
 let a = [5, 2, 6, 9, 8, 1, 3, 7, 4];
 console.log("Original array:", a);
-let moves = merge_sort(a, 0, 0)
+let moves = heap_sort(a)
 console.log("Sorted array:", a);
 console.log(moves);
 let b = [34, 3432, 543, 21, 7, 43, 378, 741]

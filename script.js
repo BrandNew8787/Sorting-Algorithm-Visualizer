@@ -29,11 +29,13 @@ function animate(moves) {
     [array[i], array[j]] = [array[j], array[i]];
   } else if (type === "over") {
     array[i] = j; // Overwrite value directly (instead of swapping)
-    playNote(200 + array[i] * 500)
   }
-  if (type != "over"){
-    [i, j].forEach(index => playNote(200 + array[index] * 500));
-  }
+   // Ensure indices are valid before calling playNote()
+   [i, j].forEach(index => {
+    if (array[index] !== undefined) {
+      playNote(200 + array[index] * 500);
+    }
+  });
   showBars({ indices: [i, j], type });
   setTimeout(() => animate(moves), 50);
 }
