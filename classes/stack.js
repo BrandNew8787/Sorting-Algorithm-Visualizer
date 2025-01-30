@@ -60,21 +60,27 @@ class Stack {
     }
 }
 
-// Example Usage (empty implementation)
-const stack = new Stack();
+// // Example Usage (empty implementation)
+// const stack = new Stack();
 
-stack.push(10);          // Push 10 onto the stack
-stack.push(20);          // Push 20 onto the stack
-stack.push(30);          // Push 30 onto the stack
+// stack.push(10);          // Push 10 onto the stack
+// stack.push(20);          // Push 20 onto the stack
+// stack.push(30);          // Push 30 onto the stack
 
-stack.print();           // Output: 10 -> 20 -> 30
-console.log(stack.peek()); // Output: 30
+// stack.print();           // Output: 10 -> 20 -> 30
+// console.log(stack.peek()); // Output: 30
 
-stack.pop();             // Removes 30
-stack.print();           // Output: 10 -> 20
+// stack.pop();             // Removes 30
+// stack.print();           // Output: 10 -> 20
 
-console.log(stack.size()); // Output: 2
-console.log(stack.isEmpty()); // Output: false
+// console.log(stack.size()); // Output: 2
+// console.log(stack.isEmpty()); // Output: false
 
-stack.clear();           // Clears the stack
-console.log(stack.isEmpty()); // Output: true
+// stack.clear();           // Clears the stack
+// console.log(stack.isEmpty()); // Output: true
+
+
+let a = Math.round((310-50)/50);
+a = a * 50;
+a = a + 50;
+a = 350 - a;

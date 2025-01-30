@@ -20,19 +20,6 @@ export function bubble_sort(arr) {
     return moves;
   }
 
-// export function bubble_sort(arr) {
-//     for (let i = 0; i < arr.length; i++) {
-//         for (let j = i + 1; j < arr.length; j++) {
-//             if (arr[i] > arr[j]) {
-//                 let temp = arr[j];
-//                 arr[j] = arr[i];
-//                 arr[i] = temp;
-//             }
-//         }
-//     }
-//     return arr;
-// }
-
 /*
 A simple sorting algorithm that works by iteratively taking one element from 
 an unsorted list and inserting it into its correct position within a growing sorted sublist.
@@ -69,20 +56,24 @@ A sorting algorithm that repeatedly finds the minimum element in the unsorted po
 of an array and swaps it with the element at the beginning of the unsorted section.
 Can be inefficient for large datasets due to its time complexity of O(n^2).
 */
-function selection_sort(arr) {
+export function selection_sort(arr) {
+    const moves = [];
     for (let i = 0; i < arr.length; i++) {
         let min_j = i;
         let min = arr[i];
         for (let j = i + 1; j < arr.length; j++) {
+            moves.push({indices: [j, i], type: "comp"});
             if (arr[j] < min) {
                 min_j = j;
                 min = arr[j];
             }
         }
+        moves.push({indices: [min_j, arr[i]], type: "over"});
         arr[min_j] = arr[i];
+        moves.push({indices: [i, min], type: "over"});
         arr[i] = min;
     }
-    return arr;
+    return moves;
 }
 
 /*
@@ -121,6 +112,7 @@ function merge(arr, left, middle, right, moves) {
 
     for (let dataIdx = left; dataIdx < right + 1; dataIdx++) { // Correct loop condition
         if (leftIdx < leftPart.length && rightIdx < rightPart.length) {
+            moves.push({indices:[dataIdx, dataIdx + rightIdx], type: "comp"});
             if (leftPart[leftIdx] <= rightPart[rightIdx]) {
                 moves.push({indices: [dataIdx, leftPart[leftIdx]], type: "over"})
                 arr[dataIdx] = leftPart[leftIdx];
@@ -156,21 +148,29 @@ The choice of gap sequence affects its performance; common sequences include She
 
 Time Complexity: Depends on the gap sequence, commonly O(n^(3/2)) or O(n log^2 n) for practical implementations.
 */
-function shell_sort(arr) {
+export function shell_sort(arr) {
+    const moves = []
     let interval = Math.floor(arr.length / 2);
     while (interval > 0) {
         for (let i = interval; i < arr.length; i++) {
             let temp = arr[i];
             let j = i;
-            while (j >= interval && arr[j - interval] > temp) {
+            // while (j >= interval && arr[j - interval] > temp) {
+            //     moves.push({indices: [j, arr[j-interval]], type: "over"});
+            //     arr[j] = arr[j - interval];
+            //     j -= interval;
+            // }
+            for (j; j >= interval && arr[j - interval] > temp; j -= interval){
+                moves.push({indices: [j-interval, i], type: "comp"});
+                moves.push({indices: [j, arr[j-interval]], type: "over"});
                 arr[j] = arr[j - interval];
-                j -= interval;
             }
+            moves.push({indices: [j, temp], type: "over"});
             arr[j] = temp;
         }
         interval = Math.floor(interval / 2);
     }
-    return arr;
+    return moves;
 }
 
 /*
@@ -364,34 +364,43 @@ Worst case:
 Quicksort's worst-case time complexity is \(O(n^{2})\) when the pivot choice results in unbalanced partitions. 
 This can happen when the array is already sorted or when the pivot is consistently the smallest or largest element. 
 */
-function quick_sort(arr, left, right){
+
+export function quick_sort(arr){
+    const moves = [];
+    quick_sort_algo(arr, 0, arr.length, moves);
+    return moves;
+}
+
+function quick_sort_algo(arr, left, right, moves){
     if(right - left <= 0){
         return;
     }
     else{
-        let partitionPoint = partition(arr, left, right);
-        quick_sort(arr, left, partitionPoint-1);
-        quick_sort(arr, partitionPoint + 1, right);
+        let partitionPoint = partition(arr, left, right, moves);
+        quick_sort_algo(arr, left, partitionPoint-1, moves);
+        quick_sort_algo(arr, partitionPoint + 1, right, moves);
     }
-    return arr;
+    return moves;
 }
 
 
-function partition(arr, left, right) {
+function partition(arr, left, right, moves) {
     let pivot = arr[right]; // Choose pivot as the rightmost element
     let i = left - 1; // Pointer for elements smaller than pivot
 
     for (let j = left; j < right; j++) {
         if (arr[j] <= pivot) {
+            moves.push({indices: [j, right], type: "comp"});
             i++;
-            swap(arr, i, j); // Swap smaller element to the left
+            swap(arr, i, j, moves); // Swap smaller element to the left
         }
     }
-    swap(arr, i + 1, right); // Place pivot in its correct position
+    swap(arr, i + 1, right, moves); // Place pivot in its correct position
     return i + 1; // Return pivot index
 }
 
-function swap(arr, i, j) {
+function swap(arr, i, j, moves) {
+    moves.push({indices: [i, j], type: "swap"});
     let temp = arr[i];
     arr[i] = arr[j];
     arr[j] = temp;
@@ -401,7 +410,7 @@ function swap(arr, i, j) {
 // Example usage:
 let a = [5, 2, 6, 9, 8, 1, 3, 7, 4];
 console.log("Original array:", a);
-let moves = heap_sort(a)
+let moves = quick_sort(a, 0, 1)
 console.log("Sorted array:", a);
 console.log(moves);
 let b = [34, 3432, 543, 21, 7, 43, 378, 741]
