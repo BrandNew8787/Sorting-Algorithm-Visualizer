@@ -1,110 +1,66 @@
+import * as sortingAlgorithms from './classes/sortingAlgorithms.js';
+
 const n = 20;
 let array = [];
+let audioCtx = null;
 
-init();
-
-let audioCtx=null;
-
-function playNote(freq){
-  if(audioCtx==null){
-    audioCtx=new(
-      AudioContext ||
-      webkitAudioContext ||
-      window.webkitAudioContext
-    )();
-  }
-
-  const dur=0.1;
-  const osc=audioCtx.createOscillator();
-  osc.frequency.value = freq;
-  osc.start();
-  osc.stop(audioCtx.currentTime+dur);
-  const node = audioCtx.createGain();
-  node.gain.value = 0.05;
-  node.gain.linearRampToValueAtTime(0, audioCtx.currentTime+dur);
-  osc.connect(node);
-  node.connect(audioCtx.destination);
-}
-
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("init").addEventListener("click", init);
+  document.getElementById("play").addEventListener("click", play);
+  init();
+});
 
 function init() {
-  array = []; // Clear the array
-  for (let i = 0; i < n; i++) {
-    array.push(Math.random());
-  }
+  array = Array.from({ length: n }, () => Math.random());
   showBars();
 }
 
 function play() {
-  const copy=[...array];
-  const moves = bubble_sort(copy);
+  const algorithm = document.getElementById("algorithm").value;
+  const copy = [...array];
+  const moves = sortingAlgorithms[algorithm](copy); // Using the mergeSort here
   animate(moves);
 }
 
-function animate(moves){
-  if (moves.length==0){
-    showBars();
-    return;
-  }
-  const move = moves.shift();
-  const [i, j] = move.indices;
-
-  if (move.type=="swap"){
+function animate(moves) {
+  if (!moves.length) return showBars();
+  const { indices: [i, j], type } = moves.shift();
+  if (type === "swap") {
     [array[i], array[j]] = [array[j], array[i]];
+  } else if (type === "over") {
+    array[i] = j; // Overwrite value directly (instead of swapping)
+    playNote(200 + array[i] * 500)
   }
-  
-  playNote(200+array[i]*500);
-  playNote(200+array[j]*500);
-
-  showBars(move);
-  setTimeout(function(){
-    animate(moves);
-  }, 50)
+  if (type != "over"){
+    [i, j].forEach(index => playNote(200 + array[index] * 500));
+  }
+  showBars({ indices: [i, j], type });
+  setTimeout(() => animate(moves), 50);
 }
 
-function bubble_sort(arr) {
-  const moves =[];
-  do{
-    var swapped = false;
-    for(let i = 1; i <arr.length;i++){
-      // moves.push({indices: [i-1, i], type:"comp"});
-      if(arr[i-1] > arr[i]){
-        swapped=true;
-        moves.push({indices: [i-1, i], type:"swap"});
-        [arr[i-1], arr[i]] = [arr[i], arr[i-1]];
-      }
-    }
-  }while(swapped);
-  return moves;
+function playNote(freq) {
+  if (!audioCtx) audioCtx = new (AudioContext || webkitAudioContext)();
+  const osc = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+  osc.frequency.value = freq;
+  osc.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+  gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+  osc.start();
+  osc.stop(audioCtx.currentTime + 0.1);
 }
 
-
-function showBars(move) {
+function showBars(highlight) {
   const container = document.getElementById("container");
-  container.innerHTML = ""; // Clear existing bars before re-rendering
-  for (let i = 0; i < array.length; i++) {
+  container.innerHTML = "";
+  array.forEach((value, index) => {
     const bar = document.createElement("div");
-    bar.style.height = array[i] * 100 + "%";
-    bar.classList.add("bar");
-
-    if(move && move.indices.includes(i)){
-      bar.style.backgroundColor=
-        move.type=="swap"?"red":"blue";
+    bar.style.height = `${value * 100}%`;
+    bar.className = "bar";
+    if (highlight?.indices.includes(index)) {
+      bar.style.backgroundColor = highlight.type === "comp" ? "blue" : "red";
     }
     container.appendChild(bar);
-  }
+  });
 }
-
-
-// Ensure DOM is fully loaded before attaching event listeners
-document.addEventListener("DOMContentLoaded", () => {
-  const initButton = document.querySelector("button#init");
-  const playButton = document.querySelector("button#play");
-  
-  if (initButton && playButton) {
-    initButton.addEventListener("click", init);
-    playButton.addEventListener("click", play);
-  } else {
-    console.error("Buttons not found in the DOM");
-  }
-});

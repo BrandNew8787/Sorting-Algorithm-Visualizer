@@ -3,25 +3,43 @@ A simple sorting algorithm that repeatedly iterates through a list,
 comparing adjacent elements and swapping them if they are in the wrong order.
 Can be inefficient for large datasets due to its time complexity of O(n^2).
 */
+
 export function bubble_sort(arr) {
-    for (let i = 0; i < arr.length; i++) {
-        for (let j = i + 1; j < arr.length; j++) {
-            if (arr[i] > arr[j]) {
-                let temp = arr[j];
-                arr[j] = arr[i];
-                arr[i] = temp;
-            }
+    const moves =[];
+    do{
+      var swapped = false;
+      for(let i = 1; i <arr.length;i++){
+        moves.push({indices: [i-1, i], type:"comp"});
+        if(arr[i-1] > arr[i]){
+          swapped=true;
+          moves.push({indices: [i-1, i], type:"swap"});
+          [arr[i-1], arr[i]] = [arr[i], arr[i-1]];
         }
-    }
-    return arr;
-}
+      }
+    }while(swapped);
+    return moves;
+  }
+
+// export function bubble_sort(arr) {
+//     for (let i = 0; i < arr.length; i++) {
+//         for (let j = i + 1; j < arr.length; j++) {
+//             if (arr[i] > arr[j]) {
+//                 let temp = arr[j];
+//                 arr[j] = arr[i];
+//                 arr[i] = temp;
+//             }
+//         }
+//     }
+//     return arr;
+// }
 
 /*
 A simple sorting algorithm that works by iteratively taking one element from 
 an unsorted list and inserting it into its correct position within a growing sorted sublist.
 Can be inefficient for large datasets due to its time complexity of O(n^2).
 */
-function insertion_sort(arr) {
+export function insertion_sort(arr) {
+    const moves = [];
     for (let i = 1; i < arr.length; i++) {
         let key = arr[i];
         let j = i - 1;
@@ -29,13 +47,21 @@ function insertion_sort(arr) {
         /* Move elements of arr[0..i-1], that are
            greater than key, to one position ahead
            of their current position */
-        while (j >= 0 && arr[j] > key) {
-            arr[j + 1] = arr[j];
-            j -= 1;
+        for(i; j>=0; j--){
+            moves.push({indices: [j+1, j], type:"comp"});
+            if (j >= 0 && arr[j]> key){
+                moves.push({indices: [j+1, j], type:"swap"});
+                arr[j + 1] = arr[j];
+                console.log(arr); 
+            }
+            else if(arr[j] < key){
+                break;
+            }
         }
-        arr[j + 1] = key;
+        arr[j + 1] = key;   // this is where the last swap is happening
+        console.log(arr);
     }
-    return arr;
+    return moves;
 }
 
 /*
@@ -65,15 +91,19 @@ is repeatedly divided into smaller sublists until each sublist contains only one
 and then these sublists are merged back together in a sorted order, effectively sorting the entire list. 
 Considered one of the most efficient sorting algorithms due to its time complexity of O(n log n).
 */
-function merge_sort(arr) {
-    if (arr.length == 1) {
-        return arr;
+export function merge_sort(arr){
+    const moves = [];
+    merge_sort_algo(arr, 0, arr.length-1, moves);
+    return moves;
+}
+
+function merge_sort_algo(arr, left, right, moves){
+    if (left < right){
+        let middle = Math.floor((left + right) / 2);
+        merge_sort_algo(arr, left, middle, moves);
+        merge_sort_algo(arr, middle+1, right, moves);
+        merge(arr, left, middle, right, moves);
     }
-    let a1 = arr.slice(0, Math.floor(arr.length / 2));
-    let a2 = arr.slice(Math.floor(arr.length / 2));
-    a1 = merge_sort(a1);
-    a2 = merge_sort(a2);
-    return merge(a1, a2);
 }
 
 /*
@@ -83,26 +113,40 @@ This function ensures that elements from both arrays are compared and placed in 
 Time Complexity: O(n), where n is the total number of elements in a1 and a2.
 Space Complexity: O(n), as it creates a new array to hold the merged result.
 */
-function merge(a1, a2) {
-    let arr = [];
-    while (a1.length !== 0 && a2.length !== 0) {
-        if (a1[0] > a2[0]) {
-            arr.push(a2[0]);
-            a2.splice(0, 1); // Remove the smallest element from a2
+function merge(arr, left, middle, right, moves) {
+
+    let leftPart = arr.slice(left, middle + 1);
+    let rightPart = arr.slice(middle+1, right+1);
+    let leftIdx = 0, rightIdx = 0;
+
+    for (let dataIdx = left; dataIdx < right + 1; dataIdx++) { // Correct loop condition
+        if (leftIdx < leftPart.length && rightIdx < rightPart.length) {
+            if (leftPart[leftIdx] <= rightPart[rightIdx]) {
+                moves.push({indices: [dataIdx, leftPart[leftIdx]], type: "over"})
+                arr[dataIdx] = leftPart[leftIdx];
+                console.log(arr);
+                leftIdx += 1;
+            } else {
+                moves.push({indices: [dataIdx, rightPart[rightIdx]], type: "over"})
+                arr[dataIdx] = rightPart[rightIdx];
+                console.log(arr);
+                rightIdx += 1;
+            }
+        } else if (leftIdx < leftPart.length) {
+            moves.push({indices: [dataIdx, leftPart[leftIdx]], type: "over"})
+            arr[dataIdx] = leftPart[leftIdx];
+            console.log(arr);
+            leftIdx += 1;
         } else {
-            arr.push(a1[0]);
-            a1.splice(0, 1); // Remove the smallest element from a1
+            moves.push({indices: [dataIdx, rightPart[rightIdx]], type: "over"})
+            arr[dataIdx] = rightPart[rightIdx];
+            console.log(arr);
+            rightIdx += 1;
         }
     }
-    // Add any remaining elements from a1 or a2
-    if (a1.length !== 0) {
-        arr.push(...a1);
-    }
-    if (a2.length !== 0) {
-        arr.push(...a2);
-    }
-    return arr;
 }
+
+
 
 /*
 An improved version of insertion sort that compares elements far apart first, reducing the number of shifts 
@@ -352,5 +396,7 @@ function swap(arr, i, j) {
 // Example usage:
 let a = [5, 2, 6, 9, 8, 1, 3, 7, 4];
 console.log("Original array:", a);
-console.log("Sorted array:", quick_sort(a, 0, a.length - 1));
+let moves = merge_sort(a, 0, 0)
+console.log("Sorted array:", a);
+console.log(moves);
 let b = [34, 3432, 543, 21, 7, 43, 378, 741]
