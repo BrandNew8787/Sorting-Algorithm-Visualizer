@@ -8,6 +8,10 @@ let isPaused = false;
 let moves = []; // Store moves for pausing/resuming
 let animationTimeoutId; // For tracking the setTimeout
 
+// Allowed speeds (in ms) for the slider.
+// The array is ordered from fastest to slowest.
+const speedValues = [10, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250];
+
 // Update the displayed code when the sorting algorithm is changed
 document.getElementById("algorithm").addEventListener("change", function () {
   let selectedAlgorithm = this.value;
@@ -22,8 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("sizeSlider").addEventListener("input", updateSize);
   document.getElementById("speedSlider").addEventListener("input", updateSpeed);
 
-  // Set slider steps correctly
-  document.getElementById("speedSlider").step = 50;
+  // Set slider steps correctly (for size slider, if needed)
   document.getElementById("sizeSlider").step = 5;
 
   const defaultAlgorithm = document.getElementById("algorithm").value;
@@ -41,7 +44,7 @@ function init() {
   moves = []; // Clear previous moves
   array = Array.from({ length: arraySize }, () => Math.random());
   unhighlightCode(); // Remove code highlighting
-  // Render bars with default color (black)
+  // Render bars with default color (black, per CSS)
   showBars();
 }
 
@@ -105,13 +108,12 @@ function animate() {
 }
 
 function updateSpeed() {
-  let sliderValue = parseInt(document.getElementById("speedSlider").value);
-  if (sliderValue === 10) {
-    animationSpeed = 350;
-  } else {
-    animationSpeed = 350 - Math.round((sliderValue - 10) / 50) * 50;
-    animationSpeed = Math.max(Math.min(animationSpeed, 350), 10);
-  }
+  // Get the slider value as an index (0 to 10)
+  const sliderIndex = parseInt(document.getElementById("speedSlider").value);
+  // Invert the index: index 0 (leftmost) should yield the slowest speed (250 ms),
+  // and index 10 (rightmost) should yield the fastest speed (10 ms).
+  const maxIndex = speedValues.length - 1; // 10
+  animationSpeed = speedValues[maxIndex - sliderIndex];
   document.getElementById("speedValue").innerText = animationSpeed;
 }
 
@@ -141,7 +143,6 @@ function showBars(highlight) {
     const bar = document.createElement("div");
     bar.style.height = `${value * 100}%`;
     bar.className = "bar";
-    // Default bar color is defined in CSS (black)
     if (highlight?.indices.includes(index)) {
       bar.style.backgroundColor = highlight.type === "comp" ? "blue" : "red";
     }
