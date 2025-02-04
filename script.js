@@ -1,4 +1,4 @@
-import * as sortingAlgorithms from './classes/sortingAlgorithms.js';
+import * as sortingAlgorithms from './classes/stepSortingAlgorithms.js';
 
 let arraySize = 20; // Default array size
 let animationSpeed = 100; // Default speed in ms
