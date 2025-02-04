@@ -5,27 +5,30 @@ Can be inefficient for large datasets due to its time complexity of O(n^2).
 */
 
 export function bubble_sort(arr) {
-    const moves =[];
-    do{
-      var swapped = false;
-      for(let i = 1; i <arr.length;i++){
-        moves.push({indices: [i-1, i], type:"comp"});
-        if(arr[i-1] > arr[i]){
-          swapped=true;
-          moves.push({indices: [i-1, i], type:"swap"});
-          [arr[i-1], arr[i]] = [arr[i], arr[i-1]];
+    const moves = [];
+    do {
+      var swapped = false; // line 2
+      for (let i = 1; i < arr.length; i++) { // line 3
+        // Record the comparison on line 4
+        moves.push({ indices: [i - 1, i], type: "comp", line: 4 });
+        if (arr[i - 1] > arr[i]) { // line 4 condition
+          swapped = true; // line 5
+          // Record the swap on line 6
+          moves.push({ indices: [i - 1, i], type: "swap", line: 6 });
+          [arr[i - 1], arr[i]] = [arr[i], arr[i - 1]]; // line 6
         }
       }
-    }while(swapped);
+    } while (swapped); // line 7
     return moves;
-  }
+  }  
 
 /*
 A simple sorting algorithm that works by iteratively taking one element from 
 an unsorted list and inserting it into its correct position within a growing sorted sublist.
 Can be inefficient for large datasets due to its time complexity of O(n^2).
 */
-export function insertion_sort(arr) {
+
+  export function insertion_sort(arr) {
     const moves = [];
     for (let i = 1; i < arr.length; i++) {
         let key = arr[i];
@@ -35,21 +38,22 @@ export function insertion_sort(arr) {
            greater than key, to one position ahead
            of their current position */
         for(i; j>=0; j--){
-            moves.push({indices: [j+1, j], type:"comp"});
+            moves.push({indices: [j+1, j], type:"comp", line: 4});
             if (j >= 0 && arr[j]> key){
-                moves.push({indices: [j+1, j], type:"swap"});
-                arr[j + 1] = arr[j];
-                console.log(arr); 
+                moves.push({indices: [j+1, j], type:"swap", line:5});
+                arr[j + 1] = arr[j]; 
             }
             else if(arr[j] < key){
                 break;
             }
         }
+        moves.push({line:8})
         arr[j + 1] = key;   // this is where the last swap is happening
         console.log(arr);
     }
     return moves;
 }
+  
 
 /*
 A sorting algorithm that repeatedly finds the minimum element in the unsorted portion 
@@ -58,24 +62,23 @@ Can be inefficient for large datasets due to its time complexity of O(n^2).
 */
 export function selection_sort(arr) {
     const moves = [];
-    for (let i = 0; i < arr.length; i++) {
-        let min_j = i;
-        let min = arr[i];
-        for (let j = i + 1; j < arr.length; j++) {
-            moves.push({indices: [j, i], type: "comp"});
-            if (arr[j] < min) {
-                min_j = j;
-                min = arr[j];
-            }
+    for (let i = 0; i < arr.length - 1; i++) {     // line 1
+      let minIndex = i;                            // line 2
+      for (let j = i + 1; j < arr.length; j++) {     // line 3
+        // Record the comparison on line 4
+        moves.push({ indices: [j, minIndex], type: "comp", line: 4 });
+        if (arr[j] < arr[minIndex]) {                // line 4
+            moves.push({line:5});
+            minIndex = j;                            // line 5
         }
-        moves.push({indices: [min_j, arr[i]], type: "over"});
-        arr[min_j] = arr[i];
-        moves.push({indices: [i, min], type: "over"});
-        arr[i] = min;
+      }
+      // Record the swap on line 6
+      moves.push({ indices: [i, minIndex], type: "swap", line: 8});
+      [arr[i], arr[minIndex]] = [arr[minIndex], arr[i]]; // line 6
     }
     return moves;
-}
-
+  }
+  
 /*
 A sorting algorithm that utilizes the "divide and conquer" strategy, where a list 
 is repeatedly divided into smaller sublists until each sublist contains only one element, 
@@ -91,8 +94,11 @@ export function merge_sort(arr){
 function merge_sort_algo(arr, left, right, moves){
     if (left < right){
         let middle = Math.floor((left + right) / 2);
+        moves.push({line: 3});
         merge_sort_algo(arr, left, middle, moves);
+        moves.push({line: 4});
         merge_sort_algo(arr, middle+1, right, moves);
+        moves.push({line: 5});
         merge(arr, left, middle, right, moves);
     }
 }
@@ -104,7 +110,8 @@ This function ensures that elements from both arrays are compared and placed in 
 Time Complexity: O(n), where n is the total number of elements in a1 and a2.
 Space Complexity: O(n), as it creates a new array to hold the merged result.
 */
-function merge(arr, left, middle, right, moves) {
+
+  function merge(arr, left, middle, right, moves) {
 
     let leftPart = arr.slice(left, middle + 1);
     let rightPart = arr.slice(middle+1, right+1);
@@ -112,33 +119,31 @@ function merge(arr, left, middle, right, moves) {
 
     for (let dataIdx = left; dataIdx < right + 1; dataIdx++) { // Correct loop condition
         if (leftIdx < leftPart.length && rightIdx < rightPart.length) {
-            moves.push({indices:[dataIdx, dataIdx + rightIdx], type: "comp"});
+            moves.push({indices:[dataIdx, dataIdx + rightIdx], type: "comp", line: 10});
             if (leftPart[leftIdx] <= rightPart[rightIdx]) {
-                moves.push({indices: [dataIdx, leftPart[leftIdx]], type: "over"})
+                moves.push({indices: [dataIdx, leftPart[leftIdx]], type: "over", line: 10})
                 arr[dataIdx] = leftPart[leftIdx];
                 console.log(arr);
                 leftIdx += 1;
             } else {
-                moves.push({indices: [dataIdx, rightPart[rightIdx]], type: "over"})
+                moves.push({indices: [dataIdx, rightPart[rightIdx]], type: "over", line: 10})
                 arr[dataIdx] = rightPart[rightIdx];
                 console.log(arr);
                 rightIdx += 1;
             }
         } else if (leftIdx < leftPart.length) {
-            moves.push({indices: [dataIdx, leftPart[leftIdx]], type: "over"})
+            moves.push({indices: [dataIdx, leftPart[leftIdx]], type: "over", line: 12})
             arr[dataIdx] = leftPart[leftIdx];
             console.log(arr);
             leftIdx += 1;
         } else {
-            moves.push({indices: [dataIdx, rightPart[rightIdx]], type: "over"})
+            moves.push({indices: [dataIdx, rightPart[rightIdx]], type: "over", line: 12})
             arr[dataIdx] = rightPart[rightIdx];
             console.log(arr);
             rightIdx += 1;
         }
     }
 }
-
-
 
 /*
 An improved version of insertion sort that compares elements far apart first, reducing the number of shifts 
@@ -148,6 +153,7 @@ The choice of gap sequence affects its performance; common sequences include She
 
 Time Complexity: Depends on the gap sequence, commonly O(n^(3/2)) or O(n log^2 n) for practical implementations.
 */
+
 export function shell_sort(arr) {
     const moves = []
     let interval = Math.floor(arr.length / 2);
@@ -161,17 +167,17 @@ export function shell_sort(arr) {
             //     j -= interval;
             // }
             for (j; j >= interval && arr[j - interval] > temp; j -= interval){
-                moves.push({indices: [j-interval, i], type: "comp"});
-                moves.push({indices: [j, arr[j-interval]], type: "over"});
+                moves.push({indices: [j-interval, i], type: "comp", line: 5});
+                moves.push({indices: [j, arr[j-interval]], type: "over", line: 6});
                 arr[j] = arr[j - interval];
             }
-            moves.push({indices: [j, temp], type: "over"});
+            moves.push({indices: [j, temp], type: "over", line: 9});
             arr[j] = temp;
         }
         interval = Math.floor(interval / 2);
     }
     return moves;
-}
+    }
 
 /*
 A comparison-based sorting algorithm that utilizes a binary heap data structure to efficiently sort 
@@ -183,24 +189,20 @@ Results in a time complexity of O(n log n) for all cases.
 export function heap_sort(arr) {
     let moves = [];
     const n = arr.length;
-
-    // Step 1: Build the Max Heap
+    // Build max heap
     for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+        moves.push({line: 9})
         heapify(arr, n, i, moves);
     }
-
-    // Step 2: Extract elements from the heap one by one
+    // Extract elements from heap
     for (let i = n - 1; i > 0; i--) {
-        // Move the current root (largest) to the end
-        moves.push({indices: [0, i], type:"swap"});
-        [arr[0], arr[i]] = [arr[i], arr[0]];
-
-        // Heapify the reduced heap
-        heapify(arr, i, 0, moves);
+      // Record the swap on line 4
+      moves.push({ indices: [0, i], type: "swap", line: 3 });
+      [arr[0], arr[i]] = [arr[i], arr[0]];
+      heapify(arr, i, 0, moves);
     }
-
     return moves;
-}
+  }
 
 /*
 A helper function for heap sort that ensures the subtree rooted at index `i` satisfies the max heap property.
@@ -214,31 +216,26 @@ Parameters:
 Time Complexity: O(log n), as the height of the heap determines the number of recursive calls.
 */
 function heapify(arr, n, i, moves) {
-    let largest = i;         // Assume the root is the largest
-    const left = 2 * i + 1;  // Left child index
-    const right = 2 * i + 2; // Right child index
-
-    // Check if left child exists and is greater than root
-    moves.push({indices: [largest, left], type:"comp"});
+    let largest = i;
+    const left = 2 * i + 1;
+    const right = 2 * i + 2;
+    // Record comparison for left child on (virtual) line 3
+    moves.push({ indices: [largest, left], type: "comp", line: 14 });
     if (left < n && arr[left] > arr[largest]) {
-        largest = left;
+      largest = left;
     }
-
-    // Check if right child exists and is greater than largest so far
-    moves.push({indices: [largest, right], type:"comp"});
+    // Record comparison for right child on (virtual) line 4
+    moves.push({ indices: [largest, right], type: "comp", line: 15 });
     if (right < n && arr[right] > arr[largest]) {
-        largest = right;
+      largest = right;
     }
-
-    // If the largest is not the root, swap and continue heapifying
     if (largest !== i) {
-        moves.push({indices: [i, largest], type:"swap"});
-        [arr[i], arr[largest]] = [arr[largest], arr[i]];
-
-        // Recursively heapify the affected subtree
-        heapify(arr, n, largest, moves);
+      // Record swap on line 5
+      moves.push({ indices: [i, largest], type: "swap", line: 17 });
+      [arr[i], arr[largest]] = [arr[largest], arr[i]];
+      heapify(arr, n, largest, moves);
     }
-}
+  }
 
 
 /*
@@ -367,6 +364,7 @@ This can happen when the array is already sorted or when the pivot is consistent
 
 export function quick_sort(arr){
     const moves = [];
+    moves.push({line:0});
     quick_sort_algo(arr, 0, arr.length, moves);
     return moves;
 }
@@ -377,34 +375,36 @@ function quick_sort_algo(arr, left, right, moves){
     }
     else{
         let partitionPoint = partition(arr, left, right, moves);
+        moves.push({line:6});
         quick_sort_algo(arr, left, partitionPoint-1, moves);
+        moves.push({line:7});
         quick_sort_algo(arr, partitionPoint + 1, right, moves);
     }
     return moves;
 }
 
-
 function partition(arr, left, right, moves) {
-    let pivot = arr[right]; // Choose pivot as the rightmost element
-    let i = left - 1; // Pointer for elements smaller than pivot
-
+    let pivot = arr[right]; // line 3 (pivot selection)
+    let i = left - 1;
     for (let j = left; j < right; j++) {
-        if (arr[j] <= pivot) {
-            moves.push({indices: [j, right], type: "comp"});
-            i++;
-            swap(arr, i, j, moves); // Swap smaller element to the left
-        }
+      // Record comparison on line 4
+      moves.push({ indices: [j, right], type: "comp", line: 14 });
+      if (arr[j] <= pivot) {
+        i++;
+        moves.push({ indices: [i, j], type: "swap", line: 16});
+        swap(arr, i, j, moves); // swap on line 5
+      }
     }
-    swap(arr, i + 1, right, moves); // Place pivot in its correct position
-    return i + 1; // Return pivot index
-}
+    moves.push({ indices: [i + 1, right], type: "swap", line: 19});
+    swap(arr, i + 1, right, moves); // swap pivot on line 6
+    return i + 1;
+  }
 
-function swap(arr, i, j, moves) {
-    moves.push({indices: [i, j], type: "swap"});
+function swap(arr, i, j, moves, line) {
     let temp = arr[i];
     arr[i] = arr[j];
     arr[j] = temp;
-}
+  }
 
 
 // Example usage:
