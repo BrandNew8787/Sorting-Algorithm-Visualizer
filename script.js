@@ -1,21 +1,32 @@
-import * as sortingAlgorithms from './classes/stepSortingAlgorithms.js';
+import * as stepSortingAlgorithms from './classes/stepSortingAlgorithms.js';
+import * as sortingAlgorithms from './classes/sortingAlgorithms.js';
 
-let arraySize = 20; // Default array size
-let animationSpeed = 100; // Default speed in ms
+let arraySize = 20;            // Default array size
+let animationSpeed = 100;      // Default speed in ms
 let array = [];
 let audioCtx = null;
 let isPaused = false;
-let moves = []; // Store moves for pausing/resuming
-let animationTimeoutId; // For tracking the setTimeout
+let stepMoves = [];            // Moves with step-by-step info (including code line highlighting)
+let moves = [];                // Moves without step-by-step
+let animationTimeoutId;        // For tracking the setTimeout
 
 // Allowed speeds (in ms) for the slider.
-// The array is ordered from fastest to slowest.
 const speedValues = [10, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250];
 
 // Update the displayed code when the sorting algorithm is changed
 document.getElementById("algorithm").addEventListener("change", function () {
   let selectedAlgorithm = this.value;
   renderCode(codeSnippets[selectedAlgorithm]);
+});
+
+// Toggle switch event listener
+document.getElementById("stepByStepSwitch").addEventListener("change", function () {
+  // Only allow toggling when paused.
+  if (!isPaused) {
+    alert("Please pause the animation before switching modes.");
+    this.checked = !this.checked;
+    return;
+  }
 });
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -36,25 +47,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Initialize array
 function init() {
-  // Stop any ongoing animation.
   isPaused = true;
   if (animationTimeoutId) {
     clearTimeout(animationTimeoutId);
   }
-  moves = []; // Clear previous moves
+  // Clear both moves arrays and reset pointers.
+  stepMoves = [];
+  moves = [];
   array = Array.from({ length: arraySize }, () => Math.random());
-  unhighlightCode(); // Remove code highlighting
-  // Render bars with default color (black, per CSS)
+  unhighlightCode();
   showBars();
 }
 
 // Play sorting animation
 function play() {
-  if (moves.length === 0) {
-    const algorithm = document.getElementById("algorithm").value;
-    const copy = [...array];
-    moves = sortingAlgorithms[algorithm](copy);
+  const algorithm = document.getElementById("algorithm").value;
+  const copy = [...array];
+  
+  // If moves haven't been generated, generate both.
+  if (!stepMoves.length && !moves.length) {
+    stepMoves = stepSortingAlgorithms[algorithm]([...copy]);
+    moves = sortingAlgorithms[algorithm]([...copy]);
   }
+  
   isPaused = false;
   animate();
 }
@@ -69,50 +84,76 @@ function pause() {
 
 // Animate sorting process
 function animate() {
-  if (isPaused) return; // Stop if paused
-  if (!moves.length) {
-    markSorted();      // Marks bars green if sorting is naturally complete.
-    unhighlightCode(); // Clear code highlighting.
+  if (isPaused) return;
+  
+  // Choose moves array based on switch
+  const isStepMode = document.getElementById("stepByStepSwitch").checked;
+  
+  if (!stepMoves.length) {
+    markSorted();
+    if (isStepMode) unhighlightCode();
     return;
   }
-
-  const move = moves.shift() || {};
-  const { indices = [], type, line } = move;
-
-  if (line !== undefined) {
-    highlightCode(line);
-  } else {
+  
+  const move = isStepMode ? stepMoves.shift() : moves.shift();
+  
+  // In step mode, highlight code if available.
+  if (isStepMode && move.line !== undefined) {
+    highlightCode(move.line);
+  } else if (isStepMode) {
     unhighlightCode();
   }
-
-  if (type === "swap" && indices.length >= 2) {
-    const [i, j] = indices;
+  
+  // Execute the move if it affects the array.
+  if (move.type === "swap" && move.indices && move.indices.length >= 2) {
+    const [i, j] = move.indices;
     [array[i], array[j]] = [array[j], array[i]];
-  } else if (type === "over" && indices.length >= 2) {
-    array[indices[0]] = indices[1];
-  }
+    let nextMove = !isStepMode ? stepMoves[0] : moves[0];
+    if (!isStepMode){
+      while(nextMove.indices != move.indices && nextMove.type != move.type){
+        nextMove = !isStepMode ? stepMoves.shift() : moves.shift();
+      }  
+    }
+    else{
+      while(nextMove.indices != move.indices && nextMove.type != move.type){
+        nextMove = !isStepMode ? stepMoves.shift() : moves.shift();
+      }
+    }
 
-  indices.forEach(index => {
+  } else if (move.type === "over" && move.indices && move.indices.length >= 2) {
+    array[move.indices[0]] = move.indices[1];
+    let nextMove = !isStepMode ? stepMoves[0] : moves[0];
+    while(nextMove.indices != move.indices && nextMove.type != move.type){
+      nextMove = !isStepMode ? stepMoves.shift() : moves.shift();
+    }
+  }
+  else if (move.type === "comp" && move.indices && move.indices.length >= 2) {
+    let nextMove = !isStepMode ? stepMoves[0] : moves[0];
+    while(nextMove.indices != move.indices && nextMove.type != move.type){
+      nextMove = !isStepMode ? stepMoves.shift() : moves.shift();
+    }
+  }
+  
+  // Play note for each index
+  (move.indices || []).forEach(index => {
     if (array[index] !== undefined) {
       playNote(200 + array[index] * 500);
     }
   });
-
-  if (indices.length > 0 && type) {
-    showBars({ indices, type });
+  
+  // Update the bars.
+  if (move.indices && move.type) {
+    showBars({ indices: move.indices, type: move.type });
   } else {
     showBars();
   }
-
+  
   animationTimeoutId = setTimeout(() => animate(), animationSpeed);
 }
 
 function updateSpeed() {
-  // Get the slider value as an index (0 to 10)
   const sliderIndex = parseInt(document.getElementById("speedSlider").value);
-  // Invert the index: index 0 (leftmost) should yield the slowest speed (250 ms),
-  // and index 10 (rightmost) should yield the fastest speed (10 ms).
-  const maxIndex = speedValues.length - 1; // 10
+  const maxIndex = speedValues.length - 1;
   animationSpeed = speedValues[maxIndex - sliderIndex];
   document.getElementById("speedValue").innerText = animationSpeed;
 }
@@ -143,7 +184,7 @@ function showBars(highlight) {
     const bar = document.createElement("div");
     bar.style.height = `${value * 100}%`;
     bar.className = "bar";
-    if (highlight?.indices.includes(index)) {
+    if (highlight && highlight.indices && highlight.indices.includes(index)) {
       bar.style.backgroundColor = highlight.type === "comp" ? "blue" : "red";
     }
     container.appendChild(bar);
