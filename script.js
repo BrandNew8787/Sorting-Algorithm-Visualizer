@@ -109,30 +109,77 @@ function animate() {
     const [i, j] = move.indices;
     [array[i], array[j]] = [array[j], array[i]];
     let nextMove = !isStepMode ? stepMoves[0] : moves[0];
-    if (!isStepMode){
-      while(nextMove.indices != move.indices && nextMove.type != move.type){
-        nextMove = !isStepMode ? stepMoves.shift() : moves.shift();
-      }  
+    while(!(arraysEqual(nextMove.indices, move.indices)) && nextMove.type !== move.type){
+      nextMove = !isStepMode ? stepMoves.shift() : moves.shift();
     }
-    else{
-      while(nextMove.indices != move.indices && nextMove.type != move.type){
-        nextMove = !isStepMode ? stepMoves.shift() : moves.shift();
-      }
-    }
-
   } else if (move.type === "over" && move.indices && move.indices.length >= 2) {
     array[move.indices[0]] = move.indices[1];
     let nextMove = !isStepMode ? stepMoves[0] : moves[0];
-    while(nextMove.indices != move.indices && nextMove.type != move.type){
+    while(!(arraysEqual(nextMove.indices, move.indices)) && nextMove.type !== move.type){
       nextMove = !isStepMode ? stepMoves.shift() : moves.shift();
     }
   }
   else if (move.type === "comp" && move.indices && move.indices.length >= 2) {
     let nextMove = !isStepMode ? stepMoves[0] : moves[0];
-    while(nextMove.indices != move.indices && nextMove.type != move.type){
+    while(!(arraysEqual(nextMove.indices, move.indices)) && nextMove.type !== move.type){
       nextMove = !isStepMode ? stepMoves.shift() : moves.shift();
     }
   }
+
+  /*
+   // Execute the move if it affects the array.
+  if (move.type === "swap" && move.indices && move.indices.length >= 2) {
+    const [i, j] = move.indices;
+    [array[i], array[j]] = [array[j], array[i]];
+    // let nextMove = !isStepMode ? stepMoves[0] : moves[0];
+    // while(!(arraysEqual(nextMove.indices, move.indices)) && nextMove.type !== move.type){
+    //   nextMove = !isStepMode ? stepMoves.shift() : moves.shift();
+    // }
+    let nextMove = !isStepMode ? stepMoves : moves;
+    let delete_moves = 0; 
+    if (!isStepMode){
+      for(let i = 0; i <= nextMove.length; i++){
+        if (!(arraysEqual(nextMove[i].indices, move.indices)) && nextMove[i].type !== move.type){
+          delete_moves++;
+        }
+        else{
+          break;
+        }
+      }
+      nextMove.shift(0, delete_moves);
+    }
+  } else if (move.type === "over" && move.indices && move.indices.length >= 2) {
+    array[move.indices[0]] = move.indices[1];
+    let nextMove = !isStepMode ? stepMoves : moves;
+    let delete_moves = 0; 
+    if (!isStepMode){
+      for(let i = 0; i <= nextMove.length; i++){
+        if (!(arraysEqual(nextMove[i].indices, move.indices)) && nextMove[i].type !== move.type){
+          delete_moves++;
+        }
+        else{
+          break;
+        }
+      }
+      nextMove.shift(0, delete_moves);
+    }
+  }
+  else if (move.type === "comp" && move.indices && move.indices.length >= 2) {
+    let nextMove = !isStepMode ? stepMoves : moves;
+    let delete_moves = 0; 
+    if (!isStepMode){
+      for(let i = 0; i <= nextMove.length; i++){
+        if (!(arraysEqual(nextMove[i].indices, move.indices)) && nextMove[i].type !== move.type){
+          delete_moves++;
+        }
+        else{
+          break;
+        }
+      }
+      nextMove.shift(0, delete_moves);
+    }
+  }
+  */
   
   // Play note for each index
   (move.indices || []).forEach(index => {
@@ -223,6 +270,16 @@ function renderCode(snippet) {
     codeBlock.appendChild(lineEl);
     codeBlock.appendChild(document.createElement("br"));
   });
+}
+
+function arraysEqual(a, b) {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
 }
 
 const codeSnippets = {
