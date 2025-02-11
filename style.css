@@ -1,45 +1,130 @@
-#container{
-  height: 200px;
+/* Base styles for dark mode */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #1e1e1e;
+  color: #ddd;
+}
+
+header{
+  width: 100%;
+  height: 50px;
+  background-color: #1b1b1b;
   display: flex;
-  align-items: flex-end;
-  max-width: 750px;
-  display: flex;
-  align-items: flex;
   justify-content: space-between;
+  align-items: center;
+  top: 0;
 }
 
-body{
+h1{
+  margin-left: 20px;
+  text-align: right;
+}
+
+/* Page container: two columns (sidebar and main) */
+.page-container {
   display: flex;
-    align-items: center;
-    flex-direction: column;
+  width: 100%;
+  height: 100vh;
 }
 
-.bar{
-  width: 10px;
-  background-color: black;
-  margin: 1px;
+/* Sidebar styles */
+.sidebar {
+  width: 300px;
+  background-color: #2d2d2d;
+  padding:20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }
 
-.highlighted-line {
-  background-color: yellow;
+
+/* Panes inside the sidebar */
+.pane {
+  display: none;
 }
 
-/* The switch - the box around the slider */
+.pane.active {
+  display: block;
+}
+
+/* Controls styles */
+.controls-pane label,
+.controls-pane select,
+.controls-pane input {
+  display: block;
+  width: 100%;
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 16px;
+  font: Helvetica;
+}
+
+.controls-pane select,
+.controls-pane input[type="range"] {
+  background-color: #333;
+  border: 1px solid #555;
+  color: #ddd;
+  border-radius: 4px;
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  margin-bottom: 20px
+}
+
+.buttons button {
+  flex: 1;
+  margin-right: 5px;
+  padding: 10px;
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.buttons button:last-child {
+  margin-right: 0;
+}
+
+.buttons button:hover {
+  background-color: #0056b3;
+}
+
+/* Toggle switch styles */
+.toggle-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0px;
+}
+
+.toggle-group label {
+  flex-grow: 0;
+  min-width: 20px;
+  max-width: 60px;
+  font-size: 14px;
+}
+/* Adjusted Toggle Switch */
 .switch {
   position: relative;
   display: inline-block;
-  width: 60px;
-  height: 34px;
+  width: 30px; /* Slightly wider for a better toggle effect */
+  height: 25px;
 }
 
-/* Hide default HTML checkbox */
 .switch input {
   opacity: 0;
   width: 0;
   height: 0;
 }
 
-/* The slider */
 .slider {
   position: absolute;
   cursor: pointer;
@@ -47,42 +132,103 @@ body{
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
+  background-color: #777;
+  transition: 0.4s;
+  border-radius: 34px;
 }
 
 .slider:before {
   position: absolute;
   content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
+  height: 21px;
+  width: 21px;
+  left: 2px;
+  bottom: 2px;
   background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
+  transition: 0.4s;
+  border-radius: 50%;
 }
 
 input:checked + .slider {
-  background-color: #2196F3;
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
+  background-color: #007bff;
 }
 
 input:checked + .slider:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
+  transform: translateX(35px); /* Half the switch width */
 }
 
-/* Rounded sliders */
-.slider.round {
-  border-radius: 34px;
+/* Ensuring consistent label & toggle alignment */
+.toggle-group {
+  display: flex;
+  align-items: center;
+  width: 100%;
 }
 
-.slider.round:before {
-  border-radius: 50%;
+.toggle-group h4 {
+  margin: 0;
+  font-size: 16px;
+  flex-grow: 1;
+  white-space: nowrap;
+}
+
+.switch {
+  flex-shrink: 1;
+}
+
+
+/* Main area */
+.main {
+  flex:1;
+  background-color: #1e1e1e;
+  padding: 20px;
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Container for sorting bars */
+#container {
+  height: 300px;
+  width: 98%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  background-color: #333;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Sorting bars */
+.bar {
+  background: linear-gradient(180deg, #007bff, #0056b3);
+  margin: 1px;
+  border-radius: 3px;
+  transition: height 0.2s ease-in-out;
+}
+
+/* Code display panel */
+#code-block {
+  width: 100%;
+  max-width: 600px;
+  max-width: auto;
+  background-color: #2d2d2d;
+  color: #ccc;
+  padding: 15px;
+  border-radius: 5px;
+  overflow-x: auto;
+  margin-top: 15px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 14px;
+  line-height: 25px;
+}
+
+.code-line {
+  display: block;
+  padding: 0;
+}
+
+.highlighted-line {
+  background-color: #444;
 }

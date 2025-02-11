@@ -188,36 +188,43 @@ function showBars(highlight) {
   const container = document.getElementById("container");
   container.innerHTML = "";
   
-  // Get the available width of the container.
   const containerWidth = container.clientWidth;
-  // Assume each bar has a horizontal margin of 1px on each side (total 2px per bar)
   const totalMargin = 2 * array.length;
-  // Compute the maximum available width for the bars.
   const availableWidth = containerWidth - totalMargin;
-  // Each bar's width is then availableWidth divided by the number of bars.
   const barWidth = availableWidth / array.length;
   
   array.forEach((value, index) => {
     const bar = document.createElement("div");
     bar.style.height = `${value * 100}%`;
-    // Set the computed width (using toFixed(2) if you wish to limit decimal places)
     bar.style.width = `${barWidth.toFixed(2)}px`;
     bar.className = "bar";
     
-    // If a highlight object is provided and the index is highlighted,
-    // change the background color accordingly.
+    // Ensure highlight object is passed correctly
     if (highlight && highlight.indices && highlight.indices.includes(index)) {
-      bar.style.backgroundColor = highlight.type === "comp" ? "blue" : "red";
+      if (highlight.type === "comp") {
+        bar.style.background = "linear-gradient(180deg,rgb(246, 255, 120),rgb(136, 146, 0))";  // Comparison color
+      } else if (highlight.type === "swap") {
+        bar.style.background = "linear-gradient(180deg,rgb(0, 136, 34),rgb(0, 85, 35))";  // Swap color
+      } else if (highlight.type === "over") {
+        bar.style.background = "linear-gradient(180deg,rgb(0, 136, 34),rgb(0, 85, 35))"; // Overwrite color
+      }
     }
-    
+
+    // Reset color after animationSpeed * 0.8 ms
+    setTimeout(() => {
+      bar.style.background = "linear-gradient(180deg, #007bff, #0056b3)";
+    }, animationSpeed * 0.8);
+
     container.appendChild(bar);
   });
 }
 
 
+
 function markSorted() {
   const bars = document.querySelectorAll(".bar");
-  bars.forEach(bar => bar.style.backgroundColor = "green");
+  bars.forEach(bar => bar.style.background = "linear-gradient(180deg,rgb(0, 136, 34),rgb(0, 85, 35))");
+  isPaused = true;
 }
 
 function highlightCode(line) {
@@ -245,7 +252,7 @@ function renderCode(snippet) {
     lineEl.dataset.line = idx;
     lineEl.classList.add("code-line");
     codeBlock.appendChild(lineEl);
-    codeBlock.appendChild(document.createElement("br"));
+
   });
 }
 

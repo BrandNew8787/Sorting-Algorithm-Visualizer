@@ -1,55 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sorting Visualizer</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <select id="algorithm">
-    <option value="bubble_sort">Bubble Sort</option>
-    <option value="insertion_sort">Insertion Sort</option>
-    <option value="selection_sort">Selection Sort</option>
-    <option value="heap_sort">Heap Sort</option>
-    <option value="shell_sort">Shell Sort</option>
-    <option value="merge_sort">Merge Sort</option>
-    <option value="quick_sort">Quick Sort</option>
-  </select>
+  <header class="title-bar">
+    <h1>Sorting Algorithm Visualizer</h1>
+  </header>
+  <div class="page-container">
+    <!-- Sidebar: controls & tabs -->
+    <div class="sidebar">
+      <div class="tabs">
+        <h2>Controls</h2>
+      </div>
+      <!-- Controls pane (default visible) -->
+      <div class="pane controls-pane active">
+        <label for="algorithm">Algorithm:</label>
+        <select id="algorithm">
+          <option value="bubble_sort">Bubble Sort</option>
+          <option value="insertion_sort">Insertion Sort</option>
+          <option value="selection_sort">Selection Sort</option>
+          <option value="heap_sort">Heap Sort</option>
+          <option value="shell_sort">Shell Sort</option>
+          <option value="merge_sort">Merge Sort</option>
+          <option value="quick_sort">Quick Sort</option>
+        </select>
 
-  <h1>Sorting Visualizer</h1>
+        <label for="speedSlider">Speed: <span id="speedValue">125</span>ms</label>
+        <input type="range" id="speedSlider" min="0" max="10" step="1" value="5" />
 
-  <!-- Speed Slider -->
-  <label for="speedSlider">Speed: <span id="speedValue">125</span>ms</label>
-  <input type="range" id="speedSlider" min="0" max="10" step="1" value="5">
+        <label for="sizeSlider">Array Size: <span id="sizeValue">20</span></label>
+        <input type="range" id="sizeSlider" min="10" max="100" value="20" />
 
+        <div class="buttons">
+          <button id="init">Init</button>
+          <button id="play">Play</button>
+          <button id="pause">Pause</button>
+        </div>
 
-
-  <!-- Array Size Slider -->
-  <label for="sizeSlider">Array Size: <span id="sizeValue">20</span></label>
-  <input type="range" id="sizeSlider" min="10" max="100" value="20">
-
-  <div id="container"></div>
-
-  <hr>
-
-  <div>
-    <button id="init">Init</button>
-    <button id="play">Play</button>
-    <button id="pause">Pause</button>
-    <label class="switch">
-      <input type="checkbox" id="stepByStepSwitch" checked="True">
-      <span class="slider round"></span>
-    </label>
-    <label class="switch">
-      <input type="checkbox" id="soundSwitch" checked="True">
-      <span class="slider round"></span>
-    </label>
+        <div class="toggles">
+          <div class="toggle-group">
+            <h4>Step-by-Step</h4>
+            <label for="stepByStepSwitch"></label>
+            <label class="switch">
+              <input type="checkbox" id="stepByStepSwitch" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+          <div class="toggle-group">
+            <h4>Sound</h4>
+            <label for="soundSwitch"></label>
+            <label class="switch">
+              <input type="checkbox" id="soundSwitch" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Main area: sorting visualization -->
+    <div class="main">
+      <div id="container"></div>
+      <div>
+      <h2>Code</h2>
+      <pre id="code-block"></pre>
+    </div>
+    </div>
     
+
   </div>
-
-  <pre id="code-block"></pre>
-
 
   <script src="script.js" type="module"></script>
 </body>
