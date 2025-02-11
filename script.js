@@ -29,6 +29,10 @@ document.getElementById("stepByStepSwitch").addEventListener("change", function 
   }
 });
 
+// Toggle switch event listener
+document.getElementById("soundSwitch").addEventListener("change", function () {
+});
+
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("init").addEventListener("click", init);
   document.getElementById("play").addEventListener("click", play);
@@ -89,18 +93,18 @@ function animate() {
   // Choose moves array based on switch
   const isStepMode = document.getElementById("stepByStepSwitch").checked;
   
-  if (!stepMoves.length) {
+  if (!stepMoves.length || !moves.length) {
     markSorted();
     if (isStepMode) unhighlightCode();
     return;
   }
-  
+
   const move = isStepMode ? stepMoves.shift() : moves.shift();
   
   // In step mode, highlight code if available.
   if (isStepMode && move.line !== undefined) {
     highlightCode(move.line);
-  } else if (isStepMode) {
+  } else if (!isStepMode) {
     unhighlightCode();
   }
   
@@ -109,84 +113,40 @@ function animate() {
     const [i, j] = move.indices;
     [array[i], array[j]] = [array[j], array[i]];
     let nextMove = !isStepMode ? stepMoves[0] : moves[0];
+    if (isStepMode){
+      moves.shift();
+    }
     while(!(arraysEqual(nextMove.indices, move.indices)) && nextMove.type !== move.type){
       nextMove = !isStepMode ? stepMoves.shift() : moves.shift();
     }
   } else if (move.type === "over" && move.indices && move.indices.length >= 2) {
     array[move.indices[0]] = move.indices[1];
     let nextMove = !isStepMode ? stepMoves[0] : moves[0];
+    if (isStepMode){
+      moves.shift();
+    }
     while(!(arraysEqual(nextMove.indices, move.indices)) && nextMove.type !== move.type){
       nextMove = !isStepMode ? stepMoves.shift() : moves.shift();
     }
   }
   else if (move.type === "comp" && move.indices && move.indices.length >= 2) {
     let nextMove = !isStepMode ? stepMoves[0] : moves[0];
+    if (isStepMode){
+      moves.shift();
+    }
     while(!(arraysEqual(nextMove.indices, move.indices)) && nextMove.type !== move.type){
       nextMove = !isStepMode ? stepMoves.shift() : moves.shift();
     }
   }
-
-  /*
-   // Execute the move if it affects the array.
-  if (move.type === "swap" && move.indices && move.indices.length >= 2) {
-    const [i, j] = move.indices;
-    [array[i], array[j]] = [array[j], array[i]];
-    // let nextMove = !isStepMode ? stepMoves[0] : moves[0];
-    // while(!(arraysEqual(nextMove.indices, move.indices)) && nextMove.type !== move.type){
-    //   nextMove = !isStepMode ? stepMoves.shift() : moves.shift();
-    // }
-    let nextMove = !isStepMode ? stepMoves : moves;
-    let delete_moves = 0; 
-    if (!isStepMode){
-      for(let i = 0; i <= nextMove.length; i++){
-        if (!(arraysEqual(nextMove[i].indices, move.indices)) && nextMove[i].type !== move.type){
-          delete_moves++;
-        }
-        else{
-          break;
-        }
-      }
-      nextMove.shift(0, delete_moves);
-    }
-  } else if (move.type === "over" && move.indices && move.indices.length >= 2) {
-    array[move.indices[0]] = move.indices[1];
-    let nextMove = !isStepMode ? stepMoves : moves;
-    let delete_moves = 0; 
-    if (!isStepMode){
-      for(let i = 0; i <= nextMove.length; i++){
-        if (!(arraysEqual(nextMove[i].indices, move.indices)) && nextMove[i].type !== move.type){
-          delete_moves++;
-        }
-        else{
-          break;
-        }
-      }
-      nextMove.shift(0, delete_moves);
-    }
-  }
-  else if (move.type === "comp" && move.indices && move.indices.length >= 2) {
-    let nextMove = !isStepMode ? stepMoves : moves;
-    let delete_moves = 0; 
-    if (!isStepMode){
-      for(let i = 0; i <= nextMove.length; i++){
-        if (!(arraysEqual(nextMove[i].indices, move.indices)) && nextMove[i].type !== move.type){
-          delete_moves++;
-        }
-        else{
-          break;
-        }
-      }
-      nextMove.shift(0, delete_moves);
-    }
-  }
-  */
   
-  // Play note for each index
-  (move.indices || []).forEach(index => {
-    if (array[index] !== undefined) {
-      playNote(200 + array[index] * 500);
-    }
-  });
+  if (document.getElementById("soundSwitch").checked){
+    // Play note for each index
+    (move.indices || []).forEach(index => {
+      if (array[index] !== undefined) {
+        playNote(200 + array[index] * 500);
+      }
+    });
+  }
   
   // Update the bars.
   if (move.indices && move.type) {
@@ -227,16 +187,33 @@ function playNote(freq) {
 function showBars(highlight) {
   const container = document.getElementById("container");
   container.innerHTML = "";
+  
+  // Get the available width of the container.
+  const containerWidth = container.clientWidth;
+  // Assume each bar has a horizontal margin of 1px on each side (total 2px per bar)
+  const totalMargin = 2 * array.length;
+  // Compute the maximum available width for the bars.
+  const availableWidth = containerWidth - totalMargin;
+  // Each bar's width is then availableWidth divided by the number of bars.
+  const barWidth = availableWidth / array.length;
+  
   array.forEach((value, index) => {
     const bar = document.createElement("div");
     bar.style.height = `${value * 100}%`;
+    // Set the computed width (using toFixed(2) if you wish to limit decimal places)
+    bar.style.width = `${barWidth.toFixed(2)}px`;
     bar.className = "bar";
+    
+    // If a highlight object is provided and the index is highlighted,
+    // change the background color accordingly.
     if (highlight && highlight.indices && highlight.indices.includes(index)) {
       bar.style.backgroundColor = highlight.type === "comp" ? "blue" : "red";
     }
+    
     container.appendChild(bar);
   });
 }
+
 
 function markSorted() {
   const bars = document.querySelectorAll(".bar");
