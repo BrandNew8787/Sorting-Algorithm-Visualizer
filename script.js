@@ -11,7 +11,7 @@ let moves = [];                // Moves without step-by-step
 let animationTimeoutId;        // For tracking the setTimeout
 
 // Allowed speeds (in ms) for the slider.
-const speedValues = [10, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250];
+const speedValues = [10, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300];
 
 // Update the displayed code when the sorting algorithm is changed
 document.getElementById("algorithm").addEventListener("change", function () {
@@ -29,14 +29,43 @@ document.getElementById("stepByStepSwitch").addEventListener("change", function 
   }
 });
 
-// Toggle switch event listener
-document.getElementById("soundSwitch").addEventListener("change", function () {
-});
-
 document.addEventListener("DOMContentLoaded", () => {
+  const playButton = document.getElementById("play");
+  const pauseButton = document.getElementById("pause");
+  const algorithmSelect = document.getElementById("algorithm");
+  const sizeSlider = document.getElementById("sizeSlider");
+
+  // Ensure pause button starts disabled and greyed out
+  pauseButton.disabled = true;
+  pauseButton.classList.add("disabled-button");
+
   document.getElementById("init").addEventListener("click", init);
-  document.getElementById("play").addEventListener("click", play);
-  document.getElementById("pause").addEventListener("click", pause);
+  
+  document.getElementById("play").addEventListener("click", function () {
+    playButton.disabled = true;
+    pauseButton.disabled = false;
+    algorithmSelect.disabled = true; // Lock algorithm selection
+    sizeSlider.disabled = true;
+
+    playButton.classList.add("disabled-button");
+    pauseButton.classList.remove("disabled-button");
+
+    begin_sort();
+  });
+
+  document.getElementById("pause").addEventListener("click", function () {
+    playButton.disabled = false;
+    pauseButton.disabled = true;
+    algorithmSelect.disabled = false;
+    sizeSlider.disabled = false;
+    stepByStepSwitch.disabled = false;
+
+    playButton.classList.remove("disabled-button");
+    pauseButton.classList.add("disabled-button");
+    stepByStepSwitch.classList.remove("disabled-switch");
+
+    pause();
+  });
 
   document.getElementById("sizeSlider").addEventListener("input", updateSize);
   document.getElementById("speedSlider").addEventListener("input", updateSpeed);
@@ -64,7 +93,7 @@ function init() {
 }
 
 // Play sorting animation
-function play() {
+function begin_sort() {
   const algorithm = document.getElementById("algorithm").value;
   const copy = [...array];
   
@@ -224,8 +253,24 @@ function showBars(highlight) {
 function markSorted() {
   const bars = document.querySelectorAll(".bar");
   bars.forEach(bar => bar.style.background = "linear-gradient(180deg,rgb(0, 136, 34),rgb(0, 85, 35))");
-  isPaused = true;
-}
+
+  const playButton = document.getElementById("play");
+  const pauseButton = document.getElementById("pause");
+  const algorithmSelect = document.getElementById("algorithm");
+  const sizeSlider = document.getElementById("sizeSlider");
+
+  playButton.disabled = false;
+  pauseButton.disabled = true;
+  algorithmSelect.disabled = false;
+  sizeSlider.disabled = false;
+  stepByStepSwitch.disabled = false;
+
+  playButton.classList.remove("disabled-button");
+  pauseButton.classList.add("disabled-button");
+
+  pause();
+};
+
 
 function highlightCode(line) {
   const lineElements = document.querySelectorAll("#code-block .code-line");

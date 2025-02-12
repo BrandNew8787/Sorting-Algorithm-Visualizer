@@ -31,6 +31,7 @@ h1{
 /* Sidebar styles */
 .sidebar {
   width: 300px;
+  min-width: 260px;
   background-color: #2d2d2d;
   padding:20px;
   box-sizing: border-box;
@@ -98,6 +99,12 @@ h1{
   background-color: #0056b3;
 }
 
+.disabled-button {
+  background-color: grey !important;
+  color: white !important;
+  cursor: not-allowed !important;
+}
+
 /* Toggle switch styles */
 .toggle-group {
   display: flex;
@@ -157,6 +164,11 @@ input:checked + .slider:before {
   transform: translateX(35px); /* Half the switch width */
 }
 
+.controls-pane input[type="range"] {
+  width: 100%;
+}
+
+
 /* Ensuring consistent label & toggle alignment */
 .toggle-group {
   display: flex;
@@ -191,22 +203,28 @@ input:checked + .slider:before {
 #container {
   height: 300px;
   width: 98%;
+  max-width: 100%;
   display: flex;
   align-items: flex-end;
-  justify-content: space-between;
+  justify-content: center; /* Center bars */
   background-color: #333;
   padding: 10px;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  flex-wrap: nowrap;
 }
+
 
 /* Sorting bars */
 .bar {
   background: linear-gradient(180deg, #007bff, #0056b3);
   margin: 1px;
   border-radius: 3px;
-  transition: height 0.2s ease-in-out;
+  transition: height 0.2s ease-in-out, width 0.2s ease-in-out;
+  flex-grow: 1; /* Allow bars to grow proportionally */
+  flex-basis: calc(100% / 50 - 2px); /* Adjust based on number of bars */
 }
+
 
 /* Code display panel */
 #code-block {
