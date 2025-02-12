@@ -350,51 +350,52 @@ Quicksort's worst-case time complexity is \(O(n^{2})\) when the pivot choice res
 This can happen when the array is already sorted or when the pivot is consistently the smallest or largest element. 
 */
 
-export function quick_sort(arr){
+export function quick_sort(arr) {
     const moves = [];
-    quick_sort_algo(arr, 0, arr.length, moves);
+    quick_sort_algo(arr, 0, arr.length - 1, moves);
     return moves;
 }
 
-function quick_sort_algo(arr, left, right, moves){
-    if(right - left <= 0){
-        return;
-    }
-    else{
+function quick_sort_algo(arr, left, right, moves) {
+    if (left < right) {
         let partitionPoint = partition(arr, left, right, moves);
-        quick_sort_algo(arr, left, partitionPoint-1, moves);
-        quick_sort_algo(arr, partitionPoint + 1, right, moves);
+        quick_sort_algo(arr, left, partitionPoint - 1, moves);  // Left partition
+        quick_sort_algo(arr, partitionPoint + 1, right, moves); // Right partition
     }
-    return moves;
 }
 
 function partition(arr, left, right, moves) {
-    let pivot = arr[right];
-    let i = left - 1;
-    for (let j = left; j < right; j++) {
-      moves.push({ indices: [j, right], type: "comp"});
-      if (arr[j] <= pivot) {
-        i++;
-        moves.push({ indices: [i, j], type: "swap"});
-        swap(arr, i, j, moves); // swap on line 5
-      }
-    }
-    moves.push({ indices: [i + 1, right], type: "swap"});
-    swap(arr, i + 1, right); // swap pivot on line 6
-    return i + 1;
-  }
+    let pivot = arr[right];  // Choose pivot as the last element
+    let i = left - 1;  // i tracks the boundary of elements <= pivot
 
-function swap(arr, i, j) {
+    for (let j = left; j < right; j++) {  // Iterate up to right-1
+        moves.push({ indices: [j, right], type: "comp" }); // Comparison
+        if (arr[j] <= pivot) {
+            i++;
+            moves.push({ indices: [i, j], type: "swap" });
+            swap(arr, i, j, moves);
+        }
+    }
+
+    moves.push({ indices: [i + 1, right], type: "swap" });  // Final pivot swap
+    swap(arr, i + 1, right, moves);
+
+    return i + 1;  // Return pivot index
+}
+
+function swap(arr, i, j, moves) {
     let temp = arr[i];
     arr[i] = arr[j];
     arr[j] = temp;
-  }
+}
+
+
 
 
 // Example usage:
 let a = [5, 2, 6, 9, 8, 1, 3, 7, 4];
 console.log("Original array:", a);
-let moves = quick_sort(a, 0, 1)
+let moves = quick_sort(a)
 console.log("Sorted array:", a);
 console.log(moves);
 let b = [34, 3432, 543, 21, 7, 43, 378, 741]

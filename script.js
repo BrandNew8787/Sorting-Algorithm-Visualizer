@@ -17,6 +17,10 @@ const speedValues = [10, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300
 document.getElementById("algorithm").addEventListener("change", function () {
   let selectedAlgorithm = this.value;
   renderCode(codeSnippets[selectedAlgorithm]);
+
+  // Clear previous algorithm moves
+  stepMoves = [];
+  moves = [];
 });
 
 // Toggle switch event listener
@@ -39,7 +43,20 @@ document.addEventListener("DOMContentLoaded", () => {
   pauseButton.disabled = true;
   pauseButton.classList.add("disabled-button");
 
-  document.getElementById("init").addEventListener("click", init);
+  document.getElementById("init").addEventListener("click", function(){
+    playButton.disabled = false;
+    pauseButton.disabled = true;
+    algorithmSelect.disabled = false;
+    sizeSlider.disabled = false;
+    stepByStepSwitch.disabled = false;
+
+    playButton.classList.remove("disabled-button");
+    pauseButton.classList.add("disabled-button");
+    stepByStepSwitch.classList.remove("disabled-switch");
+
+    pause();
+    init();
+  });
   
   document.getElementById("play").addEventListener("click", function () {
     playButton.disabled = true;

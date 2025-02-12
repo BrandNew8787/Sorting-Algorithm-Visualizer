@@ -389,7 +389,7 @@ This can happen when the array is already sorted or when the pivot is consistent
 export function quick_sort(arr){
     const moves = [];
     moves.push({line:0});
-    quick_sort_algo(arr, 0, arr.length, moves);
+    quick_sort_algo(arr, 0, arr.length - 1, moves);
     return moves;
 }
 
